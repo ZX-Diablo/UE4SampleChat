@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "UE4SampleChatGameModeBase.h"
+#include "Include/UE4SampleChatGameModeBase.h"
 
 
 
