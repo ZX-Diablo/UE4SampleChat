@@ -2,6 +2,9 @@
 
 #include "Include/UE4SampleChatPlayerController.h"
 
+void AUE4SampleChatPlayerController::BeginPlay ()
+{
+	Super::BeginPlay();
 
-
-
+	this->SetInputMode(FInputModeUIOnly());
+}

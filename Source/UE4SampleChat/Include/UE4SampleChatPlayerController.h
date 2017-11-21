@@ -13,8 +13,7 @@ UCLASS()
 class UE4SAMPLECHAT_API AUE4SampleChatPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+protected:
+	virtual void BeginPlay () override;
 };
