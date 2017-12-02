@@ -9,8 +9,10 @@ AUE4SampleChatGameModeBase::AUE4SampleChatGameModeBase ()
 {
 	this->MaxClients = 32;
 	this->SessionName = TEXT("SampleChatSession");
+	this->ChatLevel = TEXT("ChatLevel");
 
 	this->OnCreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &AUE4SampleChatGameModeBase::OnCreateSessionComplete);
+	this->OnStartSessionCompleteDelegate = FOnStartSessionCompleteDelegate::CreateUObject(this, &AUE4SampleChatGameModeBase::OnStartSessionComplete);
 }
 
 void AUE4SampleChatGameModeBase::ServerHostChat (const FText& Nickname)
@@ -39,6 +41,8 @@ void AUE4SampleChatGameModeBase::ServerHostChat (const FText& Nickname)
 			Settings.bAllowJoinViaPresenceFriendsOnly = false;
 			Settings.bAntiCheatProtected = false;
 
+			SessionManager->DestroySession(this->SessionName);
+
 			this->OnCreateSessionCompleteDelegateHandle = SessionManager->AddOnCreateSessionCompleteDelegate_Handle(this->OnCreateSessionCompleteDelegate);
 			if (!SessionManager->CreateSession(*IdentityManager->GetUniquePlayerId(0), this->SessionName, Settings))
 			{
@@ -61,13 +65,47 @@ void AUE4SampleChatGameModeBase::ShowChatMenu ()
 void AUE4SampleChatGameModeBase::BeginPlay ()
 {
 	Super::BeginPlay();
-
-	this->ShowMainMenu();
 }
 
 void AUE4SampleChatGameModeBase::OnCreateSessionComplete (FName SessionName, bool bWasSuccessful)
 {
-	UE_LOG(LogTemp, Log, TEXT("Session `%s` created"), *SessionName.ToString());
+	auto Online = IOnlineSubsystem::Get();
+
+	if (Online)
+	{
+		auto SessionManager = Online->GetSessionInterface();
+
+		if (SessionManager.IsValid())
+		{
+			SessionManager->ClearOnCreateSessionCompleteDelegate_Handle(this->OnCreateSessionCompleteDelegateHandle);
+
+			if (bWasSuccessful)
+			{
+				this->OnStartSessionCompleteDelegateHandle = SessionManager->AddOnStartSessionCompleteDelegate_Handle(this->OnStartSessionCompleteDelegate);
+				SessionManager->StartSession(SessionName);
+			}
+		}
+	}
+}
+
+void AUE4SampleChatGameModeBase::OnStartSessionComplete (FName SessionName, bool bWasSuccessful)
+{
+	auto Online = IOnlineSubsystem::Get();
+
+	if (Online)
+	{
+		auto SessionManager = Online->GetSessionInterface();
+
+		if (SessionManager.IsValid())
+		{
+			SessionManager->ClearOnStartSessionCompleteDelegate_Handle(this->OnStartSessionCompleteDelegateHandle);
+		}
+	}
+
+	if (bWasSuccessful)
+	{
+		UGameplayStatics::OpenLevel(this->GetWorld(), this->ChatLevel, true, "listen");
+	}
 }
 
 void AUE4SampleChatGameModeBase::ShowMenuHelper (TSubclassOf<UUserWidget> Menu)

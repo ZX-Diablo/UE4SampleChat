@@ -58,8 +58,13 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Network")
 	FName SessionName;
 
+	/** Chat level name constant */
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Network")
+	FName ChatLevel;
+
 private:
 	void OnCreateSessionComplete (FName SessionName, bool bWasSuccessful);
+	void OnStartSessionComplete (FName SessionName, bool bWasSuccessful);
 
 	void ShowMenuHelper (TSubclassOf<UUserWidget> Menu);
 	void CloseCurrentMenu ();
@@ -70,6 +75,8 @@ private:
 
 private:
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
+	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
 
 	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
+	FDelegateHandle OnStartSessionCompleteDelegateHandle;
 };
