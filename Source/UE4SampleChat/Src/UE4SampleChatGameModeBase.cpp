@@ -13,6 +13,7 @@ AUE4SampleChatGameModeBase::AUE4SampleChatGameModeBase ()
 
 	this->OnCreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &AUE4SampleChatGameModeBase::OnCreateSessionComplete);
 	this->OnStartSessionCompleteDelegate = FOnStartSessionCompleteDelegate::CreateUObject(this, &AUE4SampleChatGameModeBase::OnStartSessionComplete);
+	this->OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &AUE4SampleChatGameModeBase::OnFindSessionsComplete);
 }
 
 void AUE4SampleChatGameModeBase::ServerHostChat (const FText& Nickname)
@@ -52,6 +53,30 @@ void AUE4SampleChatGameModeBase::ServerHostChat (const FText& Nickname)
 	}
 }
 
+void AUE4SampleChatGameModeBase::ServerJoinChat (const FText & Nickname)
+{
+	auto Online = IOnlineSubsystem::Get();
+
+	if (Online)
+	{
+		auto SessionManager = Online->GetSessionInterface();
+		auto IdentityManager = Online->GetIdentityInterface();
+
+		if (SessionManager.IsValid() && IdentityManager.IsValid())
+		{
+			this->SessionSearch = MakeShared<FOnlineSessionSearch>();
+			this->SessionSearch->MaxSearchResults = 1;
+			this->SessionSearch->bIsLanQuery = true;
+
+			this->OnFindSessionsCompleteDelegateHandle = SessionManager->AddOnFindSessionsCompleteDelegate_Handle(this->OnFindSessionsCompleteDelegate);
+			if (!SessionManager->FindSessions(*IdentityManager->GetUniquePlayerId(0), this->SessionSearch.ToSharedRef()))
+			{
+				UE_LOG(LogTemp, Error, TEXT("Failed to find sessions"));
+			}
+		}
+	}
+}
+
 void AUE4SampleChatGameModeBase::ShowMainMenu ()
 {
 	this->ShowMenuHelper(this->MainMenu);
@@ -60,11 +85,6 @@ void AUE4SampleChatGameModeBase::ShowMainMenu ()
 void AUE4SampleChatGameModeBase::ShowChatMenu ()
 {
 	this->ShowMenuHelper(this->ChatMenu);
-}
-
-void AUE4SampleChatGameModeBase::BeginPlay ()
-{
-	Super::BeginPlay();
 }
 
 void AUE4SampleChatGameModeBase::OnCreateSessionComplete (FName SessionName, bool bWasSuccessful)
@@ -105,6 +125,29 @@ void AUE4SampleChatGameModeBase::OnStartSessionComplete (FName SessionName, bool
 	if (bWasSuccessful)
 	{
 		UGameplayStatics::OpenLevel(this->GetWorld(), this->ChatLevel, true, "listen");
+	}
+}
+
+void AUE4SampleChatGameModeBase::OnFindSessionsComplete (bool bWasSuccessful)
+{
+	auto Online = IOnlineSubsystem::Get();
+
+	if (Online)
+	{
+		auto SessionManager = Online->GetSessionInterface();
+
+		if (SessionManager.IsValid())
+		{
+			SessionManager->ClearOnFindSessionsCompleteDelegate_Handle(this->OnFindSessionsCompleteDelegateHandle);
+		}
+	}
+
+	if (bWasSuccessful && this->SessionSearch.IsValid() && this->SessionSearch->SearchState == EOnlineAsyncTaskState::Done)
+	{
+		if (this->SessionSearch->SearchResults.Num() > 0)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Find session `%s`"), *this->SessionSearch->SearchResults[0].Session.OwningUserName);
+		}
 	}
 }
 

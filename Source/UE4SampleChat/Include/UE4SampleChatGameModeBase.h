@@ -26,6 +26,12 @@ public:
 	void ServerHostChat (const FText& Nickname);
 
 	/**
+	 * @brief Join existing chat session
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Network")
+	void ServerJoinChat (const FText& Nickname);
+
+	/**
 	 * @brief Show main menu
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Interface")
@@ -36,9 +42,6 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Interface")
 	void ShowChatMenu ();
-
-protected:
-	virtual void BeginPlay () override;
 
 protected:
 	/** Main menu widget */
@@ -65,6 +68,7 @@ protected:
 private:
 	void OnCreateSessionComplete (FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete (FName SessionName, bool bWasSuccessful);
+	void OnFindSessionsComplete (bool bWasSuccessful);
 
 	void ShowMenuHelper (TSubclassOf<UUserWidget> Menu);
 	void CloseCurrentMenu ();
@@ -76,7 +80,11 @@ private:
 private:
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
 	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
+	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 
 	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
 	FDelegateHandle OnStartSessionCompleteDelegateHandle;
+	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
+
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 };
