@@ -28,6 +28,20 @@ public:
 	 */
 	bool HostSession (const FUniqueNetId& UserId, FName SessionName, int32 MaxClients);
 
+public:
+	/**
+	 * @brief Event triggered when session is created and started
+	 */
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSessionReady, FName, bool);
+	typedef FOnSessionReady::FDelegate FOnSessionReadyDelegate;
+
+	/**
+	 * @brief Delegate fired when a session is created and started
+	 * @param SessionName Session name
+	 * @param bWasSuccessful Success flag
+	 */
+	DEFINE_ONLINE_DELEGATE_TWO_PARAM(OnSessionReady, FName, bool);
+
 private:
 	void OnCreateSessionComplete (FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete (FName SessionName, bool bWasSuccessful);

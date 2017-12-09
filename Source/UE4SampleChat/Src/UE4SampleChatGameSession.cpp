@@ -31,6 +31,7 @@ bool AUE4SampleChatGameSession::HostSession (const FUniqueNetId& UserId, FName S
 
 		this->OnCreateSessionCompleteDelegateHandle = SessionManager->AddOnCreateSessionCompleteDelegate_Handle(this->OnCreateSessionCompleteDelegate);
 
+		SessionManager->DestroySession(SessionName);
 		return SessionManager->CreateSession(UserId, SessionName, Settings);
 	}
 
@@ -62,5 +63,5 @@ void AUE4SampleChatGameSession::OnStartSessionComplete (FName SessionName, bool 
 		SessionManager->ClearOnStartSessionCompleteDelegate_Handle(this->OnStartSessionCompleteDelegateHandle);
 	}
 
-	// @TODO Broadcast back
+	this->TriggerOnSessionReadyDelegates(SessionName, bWasSuccessful);
 }

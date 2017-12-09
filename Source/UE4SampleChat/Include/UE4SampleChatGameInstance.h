@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Online.h"
+#include "Include/UE4SampleChatGameSession.h"
 #include "Engine/GameInstance.h"
 #include "UE4SampleChatGameInstance.generated.h"
 
@@ -42,20 +42,19 @@ protected:
 
 	/** Chat level name constant */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Network")
-	FName ChatLevel;
+	FString ChatLevel;
 
 private:
-	void OnCreateSessionComplete (FName SessionName, bool bWasSuccessful);
-	void OnStartSessionComplete (FName SessionName, bool bWasSuccessful);
+	void OnSessionReady (FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete (bool bWasSuccessful);
 
+	AUE4SampleChatGameSession* GetGameSession () const;
+
 private:
-	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
-	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
+	AUE4SampleChatGameSession::FOnSessionReadyDelegate OnSessionReadyDelegate;
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 
-	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
-	FDelegateHandle OnStartSessionCompleteDelegateHandle;
+	FDelegateHandle OnSessionReadyDelegateHandle;
 	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
 
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;

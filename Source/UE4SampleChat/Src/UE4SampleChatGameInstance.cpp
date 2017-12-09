@@ -2,46 +2,30 @@
 
 #include "Include/UE4SampleChatGameInstance.h"
 
+#include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
+
+#include "Include/UE4SampleChatGameModeBase.h"
 
 UUE4SampleChatGameInstance::UUE4SampleChatGameInstance()
 {
 	this->MaxClients = 32;
 	this->SessionName = TEXT("Game");
-	this->ChatLevel = TEXT("ChatLevel");
+	this->ChatLevel = TEXT("/Game/Levels/ChatLevel");
 
-	this->OnCreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnCreateSessionComplete);
-	this->OnStartSessionCompleteDelegate = FOnStartSessionCompleteDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnStartSessionComplete);
+	this->OnSessionReadyDelegate = AUE4SampleChatGameSession::FOnSessionReadyDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionReady);
 	this->OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnFindSessionsComplete);
 }
 
 void UUE4SampleChatGameInstance::HostChat (const FText& Nickname)
 {
-	auto SessionManager = Online::GetSessionInterface();
-	auto IdentityManager = Online::GetIdentityInterface();
+	auto GameSession = this->GetGameSession();
+	auto Player = this->GetFirstGamePlayer();
 
-	if (SessionManager.IsValid() && IdentityManager.IsValid())
+	if (GameSession && Player)
 	{
-		FOnlineSessionSettings Settings;
-		
-		Settings.NumPublicConnections = this->MaxClients;
-		Settings.NumPrivateConnections = 0;
-		Settings.bShouldAdvertise = true;
-		Settings.bAllowJoinInProgress = true;
-		Settings.bIsLANMatch = true;
-		Settings.bIsDedicated = false;
-		Settings.bUsesStats = false;
-		Settings.bAllowInvites = false;
-		Settings.bUsesPresence = true;
-		Settings.bAllowJoinViaPresence = false;
-		Settings.bAllowJoinViaPresenceFriendsOnly = false;
-		Settings.bAntiCheatProtected = false;
-
-		SessionManager->DestroySession(this->SessionName);
-
-		this->OnCreateSessionCompleteDelegateHandle = SessionManager->AddOnCreateSessionCompleteDelegate_Handle(this->OnCreateSessionCompleteDelegate);
-		if (!SessionManager->CreateSession(*IdentityManager->GetUniquePlayerId(0), this->SessionName, Settings))
+		this->OnSessionReadyDelegateHandle = GameSession->AddOnSessionReadyDelegate_Handle(this->OnSessionReadyDelegate);
+		if (!GameSession->HostSession(*Player->GetPreferredUniqueNetId(), this->SessionName, this->MaxClients))
 		{
 			UE_LOG(LogTemp, Error, TEXT("Failed to create session"));
 		}
@@ -67,34 +51,23 @@ void UUE4SampleChatGameInstance::JoinChat (const FText & Nickname)
 	}
 }
 
-void UUE4SampleChatGameInstance::OnCreateSessionComplete (FName SessionName, bool bWasSuccessful)
+void UUE4SampleChatGameInstance::OnSessionReady (FName SessionName, bool bWasSuccessful)
 {
-	auto SessionManager = Online::GetSessionInterface();
+	auto GameSession = this->GetGameSession();
 
-	if (SessionManager.IsValid())
+	if (GameSession)
 	{
-		SessionManager->ClearOnCreateSessionCompleteDelegate_Handle(this->OnCreateSessionCompleteDelegateHandle);
-
-		if (bWasSuccessful)
-		{
-			this->OnStartSessionCompleteDelegateHandle = SessionManager->AddOnStartSessionCompleteDelegate_Handle(this->OnStartSessionCompleteDelegate);
-			SessionManager->StartSession(SessionName);
-		}
-	}
-}
-
-void UUE4SampleChatGameInstance::OnStartSessionComplete (FName SessionName, bool bWasSuccessful)
-{
-	auto SessionManager = Online::GetSessionInterface();
-
-	if (SessionManager.IsValid())
-	{
-		SessionManager->ClearOnStartSessionCompleteDelegate_Handle(this->OnStartSessionCompleteDelegateHandle);
+		GameSession->ClearOnSessionReadyDelegate_Handle(this->OnSessionReadyDelegateHandle);
 	}
 
 	if (bWasSuccessful)
 	{
-		UGameplayStatics::OpenLevel(this->GetWorld(), this->ChatLevel, true, "listen");
+		auto World = this->GetWorld();
+
+		if (World)
+		{
+			World->ServerTravel(this->ChatLevel + "?listen");
+		}
 	}
 }
 
@@ -114,4 +87,21 @@ void UUE4SampleChatGameInstance::OnFindSessionsComplete (bool bWasSuccessful)
 			UE_LOG(LogTemp, Log, TEXT("Find session `%s`"), *this->SessionSearch->SearchResults[0].Session.OwningUserName);
 		}
 	}
+}
+
+AUE4SampleChatGameSession* UUE4SampleChatGameInstance::GetGameSession () const
+{
+	auto World = this->GetWorld();
+
+	if (World)
+	{
+		auto GameMode = World->GetAuthGameMode();
+
+		if (GameMode)
+		{
+			return Cast<AUE4SampleChatGameSession>(GameMode->GameSession);
+		}
+	}
+
+	return nullptr;
 }
