@@ -46,16 +46,10 @@ protected:
 
 private:
 	void OnSessionReady (FName SessionName, bool bWasSuccessful);
-	void OnFindSessionsComplete (bool bWasSuccessful);
 
 	AUE4SampleChatGameSession* GetGameSession () const;
 
 private:
 	AUE4SampleChatGameSession::FOnSessionReadyDelegate OnSessionReadyDelegate;
-	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
-
 	FDelegateHandle OnSessionReadyDelegateHandle;
-	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
-
-	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 };

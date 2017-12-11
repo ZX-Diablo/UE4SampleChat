@@ -14,7 +14,6 @@ UUE4SampleChatGameInstance::UUE4SampleChatGameInstance()
 	this->ChatLevel = TEXT("/Game/Levels/ChatLevel");
 
 	this->OnSessionReadyDelegate = AUE4SampleChatGameSession::FOnSessionReadyDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionReady);
-	this->OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnFindSessionsComplete);
 }
 
 void UUE4SampleChatGameInstance::HostChat (const FText& Nickname)
@@ -34,19 +33,14 @@ void UUE4SampleChatGameInstance::HostChat (const FText& Nickname)
 
 void UUE4SampleChatGameInstance::JoinChat (const FText & Nickname)
 {
-	auto SessionManager = Online::GetSessionInterface();
-	auto IdentityManager = Online::GetIdentityInterface();
+	auto GameSession = this->GetGameSession();
+	auto Player = this->GetFirstGamePlayer();
 
-	if (SessionManager.IsValid() && IdentityManager.IsValid())
+	if (GameSession && Player)
 	{
-		this->SessionSearch = MakeShared<FOnlineSessionSearch>();
-		this->SessionSearch->MaxSearchResults = 1;
-		this->SessionSearch->bIsLanQuery = true;
-
-		this->OnFindSessionsCompleteDelegateHandle = SessionManager->AddOnFindSessionsCompleteDelegate_Handle(this->OnFindSessionsCompleteDelegate);
-		if (!SessionManager->FindSessions(*IdentityManager->GetUniquePlayerId(0), this->SessionSearch.ToSharedRef()))
+		if (!GameSession->FindSession(*Player->GetPreferredUniqueNetId()))
 		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to find sessions"));
+			UE_LOG(LogTemp, Error, TEXT("Failed to find session"));
 		}
 	}
 }
@@ -67,24 +61,6 @@ void UUE4SampleChatGameInstance::OnSessionReady (FName SessionName, bool bWasSuc
 		if (World)
 		{
 			World->ServerTravel(this->ChatLevel + "?listen");
-		}
-	}
-}
-
-void UUE4SampleChatGameInstance::OnFindSessionsComplete (bool bWasSuccessful)
-{
-	auto SessionManager = Online::GetSessionInterface();
-
-	if (SessionManager.IsValid())
-	{
-		SessionManager->ClearOnFindSessionsCompleteDelegate_Handle(this->OnFindSessionsCompleteDelegateHandle);
-	}
-
-	if (bWasSuccessful && this->SessionSearch.IsValid() && this->SessionSearch->SearchState == EOnlineAsyncTaskState::Done)
-	{
-		if (this->SessionSearch->SearchResults.Num() > 0)
-		{
-			UE_LOG(LogTemp, Log, TEXT("Find session `%s`"), *this->SessionSearch->SearchResults[0].Session.OwningUserName);
 		}
 	}
 }

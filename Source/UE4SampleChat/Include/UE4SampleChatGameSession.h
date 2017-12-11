@@ -28,6 +28,13 @@ public:
 	 */
 	bool HostSession (const FUniqueNetId& UserId, FName SessionName, int32 MaxClients);
 
+	/**
+	 * @brief Find session to join
+	 * @param UserId Searching user ID
+	 * @return Success flag
+	 */
+	bool FindSession (const FUniqueNetId& UserId);
+
 public:
 	/**
 	 * @brief Event triggered when session is created and started
@@ -45,11 +52,16 @@ public:
 private:
 	void OnCreateSessionComplete (FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete (FName SessionName, bool bWasSuccessful);
+	void OnFindSessionsComplete (bool bWasSuccessful);
 
 private:
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
 	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
+	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 
 	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
 	FDelegateHandle OnStartSessionCompleteDelegateHandle;
+	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
+
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 };

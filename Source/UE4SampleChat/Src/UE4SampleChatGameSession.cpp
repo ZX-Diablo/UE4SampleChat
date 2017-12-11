@@ -6,6 +6,7 @@ AUE4SampleChatGameSession::AUE4SampleChatGameSession ()
 {
 	this->OnCreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &AUE4SampleChatGameSession::OnCreateSessionComplete);
 	this->OnStartSessionCompleteDelegate = FOnStartSessionCompleteDelegate::CreateUObject(this, &AUE4SampleChatGameSession::OnStartSessionComplete);
+	this->OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &AUE4SampleChatGameSession::OnFindSessionsComplete);
 }
 
 bool AUE4SampleChatGameSession::HostSession (const FUniqueNetId& UserId, FName SessionName, int32 MaxClients)
@@ -38,6 +39,24 @@ bool AUE4SampleChatGameSession::HostSession (const FUniqueNetId& UserId, FName S
 	return false;
 }
 
+bool AUE4SampleChatGameSession::FindSession (const FUniqueNetId& UserId)
+{
+	auto SessionManager = Online::GetSessionInterface();
+
+	if (SessionManager.IsValid())
+	{
+		this->SessionSearch = MakeShared<FOnlineSessionSearch>();
+		this->SessionSearch->MaxSearchResults = 1;
+		this->SessionSearch->bIsLanQuery = true;
+		this->SessionSearch->PingBucketSize = 50;
+
+		this->OnFindSessionsCompleteDelegateHandle = SessionManager->AddOnFindSessionsCompleteDelegate_Handle(this->OnFindSessionsCompleteDelegate);
+		return SessionManager->FindSessions(UserId, this->SessionSearch.ToSharedRef());
+	}
+
+	return false;
+}
+
 void AUE4SampleChatGameSession::OnCreateSessionComplete (FName SessionName, bool bWasSuccessful)
 {
 	auto SessionManager = Online::GetSessionInterface();
@@ -64,4 +83,19 @@ void AUE4SampleChatGameSession::OnStartSessionComplete (FName SessionName, bool 
 	}
 
 	this->TriggerOnSessionReadyDelegates(SessionName, bWasSuccessful);
+}
+
+void AUE4SampleChatGameSession::OnFindSessionsComplete (bool bWasSuccessful)
+{
+	auto SessionManager = Online::GetSessionInterface();
+
+	if (SessionManager.IsValid())
+	{
+		SessionManager->ClearOnFindSessionsCompleteDelegate_Handle(this->OnFindSessionsCompleteDelegateHandle);
+	}
+
+	if (bWasSuccessful && this->SessionSearch.IsValid() && this->SessionSearch->SearchState == EOnlineAsyncTaskState::Done)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Sessions found: %d"), this->SessionSearch->SearchResults.Num());
+	}
 }
