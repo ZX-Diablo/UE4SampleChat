@@ -46,10 +46,17 @@ protected:
 
 private:
 	void OnSessionReady (FName SessionName, bool bWasSuccessful);
+	void OnSessionFound (const FOnlineSessionSearchResult& SearchResult, bool bWasSuccessful);
+	void OnSessionJoined (EOnJoinSessionCompleteResult::Type Result);
 
 	AUE4SampleChatGameSession* GetGameSession () const;
 
 private:
 	AUE4SampleChatGameSession::FOnSessionReadyDelegate OnSessionReadyDelegate;
+	AUE4SampleChatGameSession::FOnSessionFoundDelegate OnSessionFoundDelegate;
+	AUE4SampleChatGameSession::FOnSessionJoinedDelegate OnSessionJoinedDelegate;
+
 	FDelegateHandle OnSessionReadyDelegateHandle;
+	FDelegateHandle OnSessionFoundDelegateHandle;
+	FDelegateHandle OnSessionJoinedDelegateHandle;
 };

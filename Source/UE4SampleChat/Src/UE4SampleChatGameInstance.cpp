@@ -14,6 +14,8 @@ UUE4SampleChatGameInstance::UUE4SampleChatGameInstance()
 	this->ChatLevel = TEXT("/Game/Levels/ChatLevel");
 
 	this->OnSessionReadyDelegate = AUE4SampleChatGameSession::FOnSessionReadyDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionReady);
+	this->OnSessionFoundDelegate = AUE4SampleChatGameSession::FOnSessionFoundDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionFound);
+	this->OnSessionJoinedDelegate = AUE4SampleChatGameSession::FOnSessionJoinedDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionJoined);
 }
 
 void UUE4SampleChatGameInstance::HostChat (const FText& Nickname)
@@ -38,6 +40,7 @@ void UUE4SampleChatGameInstance::JoinChat (const FText & Nickname)
 
 	if (GameSession && Player)
 	{
+		this->OnSessionFoundDelegateHandle = GameSession->AddOnSessionFoundDelegate_Handle(this->OnSessionFoundDelegate);
 		if (!GameSession->FindSession(*Player->GetPreferredUniqueNetId()))
 		{
 			UE_LOG(LogTemp, Error, TEXT("Failed to find session"));
@@ -61,6 +64,52 @@ void UUE4SampleChatGameInstance::OnSessionReady (FName SessionName, bool bWasSuc
 		if (World)
 		{
 			World->ServerTravel(this->ChatLevel + "?listen");
+		}
+	}
+}
+
+void UUE4SampleChatGameInstance::OnSessionFound (const FOnlineSessionSearchResult& SearchResult, bool bWasSuccessful)
+{
+	auto GameSession = this->GetGameSession();
+	auto Player = this->GetFirstGamePlayer();
+
+	if (GameSession && Player)
+	{
+		GameSession->ClearOnSessionFoundDelegate_Handle(this->OnSessionFoundDelegateHandle);
+
+		if (bWasSuccessful && SearchResult.IsValid())
+		{
+			this->OnSessionJoinedDelegateHandle = GameSession->AddOnSessionJoinedDelegate_Handle(this->OnSessionJoinedDelegate);
+			if (!GameSession->JoinSession(*Player->GetPreferredUniqueNetId(), this->SessionName, SearchResult))
+			{
+				UE_LOG(LogTemp, Error, TEXT("Failed to join session"));
+			}
+		}
+	}
+}
+
+void UUE4SampleChatGameInstance::OnSessionJoined (EOnJoinSessionCompleteResult::Type Result)
+{
+	auto GameSession = this->GetGameSession();
+
+	if (GameSession)
+	{
+		GameSession->ClearOnSessionJoinedDelegate_Handle(this->OnSessionJoinedDelegateHandle);
+	}
+
+	if (Result == EOnJoinSessionCompleteResult::Success)
+	{
+		auto SessionManager = Online::GetSessionInterface();
+		auto PlayerController = this->GetFirstLocalPlayerController();
+
+		if (SessionManager.IsValid() && PlayerController)
+		{
+			FString URL;
+
+			if (SessionManager->GetResolvedConnectString(this->SessionName, URL))
+			{
+				PlayerController->ClientTravel(URL, ETravelType::TRAVEL_Absolute);
+			}
 		}
 	}
 }

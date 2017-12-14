@@ -35,6 +35,15 @@ public:
 	 */
 	bool FindSession (const FUniqueNetId& UserId);
 
+	/**
+	 * @brief Join session
+	 * @param UserId User ID
+	 * @param SessionName Session name
+	 * @param SearchResult Found session info
+	 * @return Success flag
+	 */
+	bool JoinSession (const FUniqueNetId& UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult);
+
 public:
 	/**
 	 * @brief Event triggered when session is created and started
@@ -43,25 +52,53 @@ public:
 	typedef FOnSessionReady::FDelegate FOnSessionReadyDelegate;
 
 	/**
-	 * @brief Delegate fired when a session is created and started
+	 * @brief Event triggered when session is found
+	 */
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSessionFound, const FOnlineSessionSearchResult&, bool);
+	typedef FOnSessionFound::FDelegate FOnSessionFoundDelegate;
+
+	/**
+	 * @brief Event triggered after session is joined
+	 */
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSessionJoined, EOnJoinSessionCompleteResult::Type);
+	typedef FOnSessionJoined::FDelegate FOnSessionJoinedDelegate;
+
+	/**
+	 * @brief Delegate fired when session is created and started
 	 * @param SessionName Session name
 	 * @param bWasSuccessful Success flag
 	 */
 	DEFINE_ONLINE_DELEGATE_TWO_PARAM(OnSessionReady, FName, bool);
 
+	/**
+	 * @brief Delegate fired when session is found
+	 * @param SearchResult Found session info (the first one)
+	 * @param bWasSuccessful Success flag
+	 */
+	DEFINE_ONLINE_DELEGATE_TWO_PARAM(OnSessionFound, const FOnlineSessionSearchResult&, bool);
+
+	/**
+	 * @brief Delegate fired after session is joined
+	 * @param Result Join result type
+	 */
+	DEFINE_ONLINE_DELEGATE_ONE_PARAM(OnSessionJoined, EOnJoinSessionCompleteResult::Type);
+
 private:
 	void OnCreateSessionComplete (FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete (FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete (bool bWasSuccessful);
+	void OnJoinSessionComplete (FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 private:
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
 	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
+	FOnJoinSessionCompleteDelegate OnJoinSessionCompleteDelegate;
 
 	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
 	FDelegateHandle OnStartSessionCompleteDelegateHandle;
 	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
+	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
 
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 };
