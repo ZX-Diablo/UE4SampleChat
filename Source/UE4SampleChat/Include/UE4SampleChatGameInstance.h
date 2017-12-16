@@ -20,18 +20,38 @@ public:
 
 public:
 	/**
-	* @brief Start new chat session as host
-	*/
+	 * @brief Start new chat session as host
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Network")
 	void HostChat (const FText& Nickname);
 
 	/**
-	* @brief Join existing chat session
-	*/
+	 * @brief Join existing chat session
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Network")
 	void JoinChat (const FText& Nickname);
 
+	/**
+	 * @brief Show main menu
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Interface")
+	void ShowMainMenu ();
+
+	/**
+	 * @brief Show chat menu
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Interface")
+	void ShowChatMenu ();
+
 protected:
+	/** Main menu widget */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interface")
+	TSubclassOf<UUserWidget> MainMenu;
+
+	/** Chat menu widget */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interface")
+	TSubclassOf<UUserWidget> ChatMenu;
+
 	/** Maximum clients allowed in one room constant */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Network")
 	int32 MaxClients;
@@ -49,9 +69,15 @@ private:
 	void OnSessionFound (const FOnlineSessionSearchResult& SearchResult, bool bWasSuccessful);
 	void OnSessionJoined (EOnJoinSessionCompleteResult::Type Result);
 
+	void ShowMenuHelper (TSubclassOf<UUserWidget> Menu);
+	void CloseCurrentMenu ();
+
 	AUE4SampleChatGameSession* GetGameSession () const;
 
 private:
+	UPROPERTY()
+	UUserWidget* CurrentMenu;
+
 	AUE4SampleChatGameSession::FOnSessionReadyDelegate OnSessionReadyDelegate;
 	AUE4SampleChatGameSession::FOnSessionFoundDelegate OnSessionFoundDelegate;
 	AUE4SampleChatGameSession::FOnSessionJoinedDelegate OnSessionJoinedDelegate;

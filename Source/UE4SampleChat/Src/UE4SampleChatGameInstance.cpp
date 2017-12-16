@@ -4,6 +4,7 @@
 
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
+#include "UserWidget.h"
 
 #include "Include/UE4SampleChatGameModeBase.h"
 
@@ -46,6 +47,16 @@ void UUE4SampleChatGameInstance::JoinChat (const FText & Nickname)
 			UE_LOG(LogTemp, Error, TEXT("Failed to find session"));
 		}
 	}
+}
+
+void UUE4SampleChatGameInstance::ShowMainMenu ()
+{
+	this->ShowMenuHelper(this->MainMenu);
+}
+
+void UUE4SampleChatGameInstance::ShowChatMenu ()
+{
+	this->ShowMenuHelper(this->ChatMenu);
 }
 
 void UUE4SampleChatGameInstance::OnSessionReady (FName SessionName, bool bWasSuccessful)
@@ -111,6 +122,29 @@ void UUE4SampleChatGameInstance::OnSessionJoined (EOnJoinSessionCompleteResult::
 				PlayerController->ClientTravel(URL, ETravelType::TRAVEL_Absolute);
 			}
 		}
+	}
+}
+
+void UUE4SampleChatGameInstance::ShowMenuHelper (TSubclassOf<UUserWidget> Menu)
+{
+	if (Menu)
+	{
+		this->CloseCurrentMenu();
+
+		this->CurrentMenu = CreateWidget<UUserWidget>(this->GetWorld(), Menu);
+		if (this->CurrentMenu)
+		{
+			this->CurrentMenu->AddToViewport();
+		}
+	}
+}
+
+void UUE4SampleChatGameInstance::CloseCurrentMenu ()
+{
+	if (this->CurrentMenu && this->CurrentMenu->IsInViewport())
+	{
+		this->CurrentMenu->RemoveFromViewport();
+		this->CurrentMenu = nullptr;
 	}
 }
 
