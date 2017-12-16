@@ -99,7 +99,7 @@ void UUE4SampleChatGameInstance::OnSessionFound (const FOnlineSessionSearchResul
 	}
 }
 
-void UUE4SampleChatGameInstance::OnSessionJoined (EOnJoinSessionCompleteResult::Type Result)
+void UUE4SampleChatGameInstance::OnSessionJoined (const FString& URL, EOnJoinSessionCompleteResult::Type Result)
 {
 	auto GameSession = this->GetGameSession();
 
@@ -110,17 +110,11 @@ void UUE4SampleChatGameInstance::OnSessionJoined (EOnJoinSessionCompleteResult::
 
 	if (Result == EOnJoinSessionCompleteResult::Success)
 	{
-		auto SessionManager = Online::GetSessionInterface();
 		auto PlayerController = this->GetFirstLocalPlayerController();
 
-		if (SessionManager.IsValid() && PlayerController)
+		if (PlayerController && !URL.IsEmpty())
 		{
-			FString URL;
-
-			if (SessionManager->GetResolvedConnectString(this->SessionName, URL))
-			{
-				PlayerController->ClientTravel(URL, ETravelType::TRAVEL_Absolute);
-			}
+			PlayerController->ClientTravel(URL, ETravelType::TRAVEL_Absolute);
 		}
 	}
 }

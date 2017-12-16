@@ -126,11 +126,13 @@ void AUE4SampleChatGameSession::OnFindSessionsComplete (bool bWasSuccessful)
 void AUE4SampleChatGameSession::OnJoinSessionComplete (FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
 	auto SessionManager = Online::GetSessionInterface();
+	FString URL;
 
 	if (SessionManager.IsValid())
 	{
 		SessionManager->ClearOnJoinSessionCompleteDelegate_Handle(this->OnJoinSessionCompleteDelegateHandle);
+		SessionManager->GetResolvedConnectString(SessionName, URL);
 	}
 
-	this->TriggerOnSessionJoinedDelegates(Result);
+	this->TriggerOnSessionJoinedDelegates(URL, Result);
 }

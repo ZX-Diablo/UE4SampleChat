@@ -67,7 +67,7 @@ protected:
 private:
 	void OnSessionReady (FName SessionName, bool bWasSuccessful);
 	void OnSessionFound (const FOnlineSessionSearchResult& SearchResult, bool bWasSuccessful);
-	void OnSessionJoined (EOnJoinSessionCompleteResult::Type Result);
+	void OnSessionJoined (const FString& URL, EOnJoinSessionCompleteResult::Type Result);
 
 	void ShowMenuHelper (TSubclassOf<UUserWidget> Menu);
 	void CloseCurrentMenu ();

@@ -60,7 +60,7 @@ public:
 	/**
 	 * @brief Event triggered after session is joined
 	 */
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSessionJoined, EOnJoinSessionCompleteResult::Type);
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSessionJoined, const FString&, EOnJoinSessionCompleteResult::Type);
 	typedef FOnSessionJoined::FDelegate FOnSessionJoinedDelegate;
 
 	/**
@@ -79,9 +79,10 @@ public:
 
 	/**
 	 * @brief Delegate fired after session is joined
+	 * @param URL URL to join
 	 * @param Result Join result type
 	 */
-	DEFINE_ONLINE_DELEGATE_ONE_PARAM(OnSessionJoined, EOnJoinSessionCompleteResult::Type);
+	DEFINE_ONLINE_DELEGATE_TWO_PARAM(OnSessionJoined, const FString&, EOnJoinSessionCompleteResult::Type);
 
 private:
 	void OnCreateSessionComplete (FName SessionName, bool bWasSuccessful);
