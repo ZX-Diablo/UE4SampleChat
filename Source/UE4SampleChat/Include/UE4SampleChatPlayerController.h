@@ -27,9 +27,13 @@ public:
 	 * @param Nickname Given nickname
 	 */
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerSetPlayerNickname (const FText& Nickname);
-	void ServerSetPlayerNickname_Implementation (const FText& Nickname);
-	bool ServerSetPlayerNickname_Validate (const FText& Nickname);
+	void ServerSetPlayerNickname (const FString& Nickname);
+	void ServerSetPlayerNickname_Implementation (const FString& Nickname);
+	bool ServerSetPlayerNickname_Validate (const FString& Nickname);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void BroadcastUpdateChatRoom (const TArray<FString>& Nicknames);
+	void BroadcastUpdateChatRoom_Implementation (const TArray<FString>& Nicknames);
 
 protected:
 	virtual void BeginPlay () override;

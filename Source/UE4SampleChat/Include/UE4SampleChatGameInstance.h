@@ -23,13 +23,13 @@ public:
 	 * @brief Start new chat session as host
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Network")
-	void HostChat (const FText& Nickname);
+	void HostChat (const FString& Nickname);
 
 	/**
 	 * @brief Join existing chat session
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Network")
-	void JoinChat (const FText& Nickname);
+	void JoinChat (const FString& Nickname);
 
 	/**
 	 * @brief Show main menu
@@ -48,7 +48,7 @@ public:
 	 * @brief Get player nickname stored before host/join
 	 * (Game instance is used as temporary storage of local player settings)
 	 */
-	const FText& GetStoredNickname () const;
+	const FString& GetStoredNickname () const;
 
 protected:
 	/** Main menu widget */
@@ -94,5 +94,5 @@ private:
 	FDelegateHandle OnSessionJoinedDelegateHandle;
 
 private:
-	FText Nickname;
+	FString Nickname;
 };

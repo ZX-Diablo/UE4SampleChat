@@ -8,7 +8,7 @@
 
 #include "Include/UE4SampleChatGameModeBase.h"
 
-UUE4SampleChatGameInstance::UUE4SampleChatGameInstance()
+UUE4SampleChatGameInstance::UUE4SampleChatGameInstance ()
 {
 	this->MaxClients = 32;
 	this->SessionName = TEXT("Game");
@@ -19,7 +19,7 @@ UUE4SampleChatGameInstance::UUE4SampleChatGameInstance()
 	this->OnSessionJoinedDelegate = AUE4SampleChatGameSession::FOnSessionJoinedDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionJoined);
 }
 
-void UUE4SampleChatGameInstance::HostChat (const FText& Nickname)
+void UUE4SampleChatGameInstance::HostChat (const FString& Nickname)
 {
 	auto GameSession = this->GetGameSession();
 	auto Player = this->GetFirstGamePlayer();
@@ -36,7 +36,7 @@ void UUE4SampleChatGameInstance::HostChat (const FText& Nickname)
 	}
 }
 
-void UUE4SampleChatGameInstance::JoinChat (const FText & Nickname)
+void UUE4SampleChatGameInstance::JoinChat (const FString& Nickname)
 {
 	auto GameSession = this->GetGameSession();
 	auto Player = this->GetFirstGamePlayer();
@@ -63,7 +63,7 @@ void UUE4SampleChatGameInstance::ShowChatMenu ()
 	this->ShowMenuHelper(this->ChatMenu);
 }
 
-const FText& UUE4SampleChatGameInstance::GetStoredNickname () const
+const FString& UUE4SampleChatGameInstance::GetStoredNickname () const
 {
 	return this->Nickname;
 }

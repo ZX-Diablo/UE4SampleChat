@@ -2,6 +2,8 @@
 
 #include "Include/UE4SampleChatPlayerController.h"
 
+#include "Engine/World.h"
+#include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 
 #include "Include/UE4SampleChatGameInstance.h"
@@ -23,12 +25,29 @@ void AUE4SampleChatPlayerController::ClientChatJoined_Implementation ()
 	}
 }
 
-void AUE4SampleChatPlayerController::ServerSetPlayerNickname_Implementation (const FText& Nickname)
+void AUE4SampleChatPlayerController::ServerSetPlayerNickname_Implementation (const FString& Nickname)
 {
-	this->PlayerState->PlayerName = Nickname.ToString();
+	this->PlayerState->PlayerName = Nickname;
+
+	TArray<FString> Nicknames;
+
+	for (auto PlayerState : this->GetWorld()->GetGameState()->PlayerArray)
+	{
+		Nicknames.Add(PlayerState->PlayerName);
+	}
+
+	this->BroadcastUpdateChatRoom(Nicknames);
 }
 
-bool AUE4SampleChatPlayerController::ServerSetPlayerNickname_Validate (const FText& Nickname)
+bool AUE4SampleChatPlayerController::ServerSetPlayerNickname_Validate (const FString& Nickname)
 {
 	return true;
+}
+
+void AUE4SampleChatPlayerController::BroadcastUpdateChatRoom_Implementation(const TArray<FString>& Nicknames)
+{
+	for (const auto& Nickname : Nicknames)
+	{
+		UE_LOG(LogTemp, Log, TEXT("`%s`"), *Nickname);
+	}
 }
