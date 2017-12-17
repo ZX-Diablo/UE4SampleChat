@@ -43,6 +43,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interface")
 	void ShowChatMenu ();
 
+public:
+	/**
+	 * @brief Get player nickname stored before host/join
+	 * (Game instance is used as temporary storage of local player settings)
+	 */
+	const FText& GetStoredNickname () const;
+
 protected:
 	/** Main menu widget */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interface")
@@ -85,4 +92,7 @@ private:
 	FDelegateHandle OnSessionReadyDelegateHandle;
 	FDelegateHandle OnSessionFoundDelegateHandle;
 	FDelegateHandle OnSessionJoinedDelegateHandle;
+
+private:
+	FText Nickname;
 };

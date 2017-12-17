@@ -14,4 +14,6 @@ class UE4SAMPLECHAT_API AUE4SampleChatGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
+public:
+	virtual void PostLogin (APlayerController* NewPlayer) override;
 };

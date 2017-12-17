@@ -24,6 +24,8 @@ void UUE4SampleChatGameInstance::HostChat (const FText& Nickname)
 	auto GameSession = this->GetGameSession();
 	auto Player = this->GetFirstGamePlayer();
 
+	this->Nickname = Nickname;
+
 	if (GameSession && Player)
 	{
 		this->OnSessionReadyDelegateHandle = GameSession->AddOnSessionReadyDelegate_Handle(this->OnSessionReadyDelegate);
@@ -38,6 +40,8 @@ void UUE4SampleChatGameInstance::JoinChat (const FText & Nickname)
 {
 	auto GameSession = this->GetGameSession();
 	auto Player = this->GetFirstGamePlayer();
+
+	this->Nickname = Nickname;
 
 	if (GameSession && Player)
 	{
@@ -57,6 +61,11 @@ void UUE4SampleChatGameInstance::ShowMainMenu ()
 void UUE4SampleChatGameInstance::ShowChatMenu ()
 {
 	this->ShowMenuHelper(this->ChatMenu);
+}
+
+const FText& UUE4SampleChatGameInstance::GetStoredNickname () const
+{
+	return this->Nickname;
 }
 
 void UUE4SampleChatGameInstance::OnSessionReady (FName SessionName, bool bWasSuccessful)
