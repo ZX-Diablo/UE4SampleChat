@@ -25,18 +25,18 @@ void AUE4SampleChatPlayerController::ClientChatJoined_Implementation ()
 	}
 }
 
+void AUE4SampleChatPlayerController::ClientUpdateChatRoom_Implementation (const TArray<FString>& NicknameArray)
+{
+	this->UpdateChatRoom(NicknameArray);
+}
+
 void AUE4SampleChatPlayerController::ServerSetPlayerNickname_Implementation (const FString& Nickname)
 {
 	this->PlayerState->PlayerName = Nickname;
 
-	TArray<FString> Nicknames;
+	TArray<FString> NicknameArray = this->GetNicknameArray();
 
-	for (auto PlayerState : this->GetWorld()->GetGameState()->PlayerArray)
-	{
-		Nicknames.Add(PlayerState->PlayerName);
-	}
-
-	this->BroadcastUpdateChatRoom(Nicknames);
+	this->BroadcastUpdateChatRoom(NicknameArray);
 }
 
 bool AUE4SampleChatPlayerController::ServerSetPlayerNickname_Validate (const FString& Nickname)
@@ -44,10 +44,40 @@ bool AUE4SampleChatPlayerController::ServerSetPlayerNickname_Validate (const FSt
 	return true;
 }
 
-void AUE4SampleChatPlayerController::BroadcastUpdateChatRoom_Implementation(const TArray<FString>& Nicknames)
+void AUE4SampleChatPlayerController::ServerClientRequestUpdateChatRoom_Implementation ()
 {
-	for (const auto& Nickname : Nicknames)
+	TArray<FString> NicknameArray = this->GetNicknameArray();
+
+	this->ClientUpdateChatRoom(NicknameArray);
+}
+
+bool AUE4SampleChatPlayerController::ServerClientRequestUpdateChatRoom_Validate ()
+{
+	return true;
+}
+
+void AUE4SampleChatPlayerController::BroadcastUpdateChatRoom_Implementation(const TArray<FString>& NicknameArray)
+{
+	this->UpdateChatRoom(NicknameArray);
+}
+
+void AUE4SampleChatPlayerController::UpdateChatRoom (const TArray<FString>& NicknameArray)
+{
+	this->ClearChatRoom();
+	for (const auto& Nickname : NicknameArray)
 	{
-		UE_LOG(LogTemp, Log, TEXT("`%s`"), *Nickname);
+		this->AddChatRoomEntry(Nickname);
 	}
+}
+
+TArray<FString> AUE4SampleChatPlayerController::GetNicknameArray () const
+{
+	TArray<FString> NicknameArray;
+
+	for (auto PlayerState : this->GetWorld()->GetGameState()->PlayerArray)
+	{
+		NicknameArray.Add(PlayerState->PlayerName);
+	}
+
+	return NicknameArray;
 }

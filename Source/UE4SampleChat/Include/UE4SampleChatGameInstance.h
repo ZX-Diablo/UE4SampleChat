@@ -59,6 +59,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interface")
 	TSubclassOf<UUserWidget> ChatMenu;
 
+	/** Current active menu */
+	UPROPERTY(BlueprintReadOnly, Category = "Interface")
+	UUserWidget* CurrentMenu;
+
 	/** Maximum clients allowed in one room constant */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Network")
 	int32 MaxClients;
@@ -82,9 +86,6 @@ private:
 	AUE4SampleChatGameSession* GetGameSession () const;
 
 private:
-	UPROPERTY()
-	UUserWidget* CurrentMenu;
-
 	AUE4SampleChatGameSession::FOnSessionReadyDelegate OnSessionReadyDelegate;
 	AUE4SampleChatGameSession::FOnSessionFoundDelegate OnSessionFoundDelegate;
 	AUE4SampleChatGameSession::FOnSessionJoinedDelegate OnSessionJoinedDelegate;
