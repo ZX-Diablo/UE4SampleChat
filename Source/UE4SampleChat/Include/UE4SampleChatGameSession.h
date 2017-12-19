@@ -20,7 +20,7 @@ public:
 
 public:
 	/**
-	 * @brief Create new session
+	 * Create new session
 	 * @param UserId User ID
 	 * @param SessionName Session name
 	 * @param MaxClients Maximum public clients allowed
@@ -29,14 +29,14 @@ public:
 	bool HostSession (const FUniqueNetId& UserId, FName SessionName, int32 MaxClients);
 
 	/**
-	 * @brief Find session to join
+	 * Find session to join
 	 * @param UserId Searching user ID
 	 * @return Success flag
 	 */
 	bool FindSession (const FUniqueNetId& UserId);
 
 	/**
-	 * @brief Join session
+	 * Join session
 	 * @param UserId User ID
 	 * @param SessionName Session name
 	 * @param SearchResult Found session info
@@ -46,39 +46,39 @@ public:
 
 public:
 	/**
-	 * @brief Event triggered when session is created and started
+	 * Event triggered when session is created and started
 	 */
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSessionReady, FName, bool);
 	typedef FOnSessionReady::FDelegate FOnSessionReadyDelegate;
 
 	/**
-	 * @brief Event triggered when session is found
+	 * Event triggered when session is found
 	 */
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSessionFound, const FOnlineSessionSearchResult&, bool);
 	typedef FOnSessionFound::FDelegate FOnSessionFoundDelegate;
 
 	/**
-	 * @brief Event triggered after session is joined
+	 * Event triggered after session is joined
 	 */
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSessionJoined, const FString&, EOnJoinSessionCompleteResult::Type);
 	typedef FOnSessionJoined::FDelegate FOnSessionJoinedDelegate;
 
 	/**
-	 * @brief Delegate fired when session is created and started
+	 * Delegate fired when session is created and started
 	 * @param SessionName Session name
 	 * @param bWasSuccessful Success flag
 	 */
 	DEFINE_ONLINE_DELEGATE_TWO_PARAM(OnSessionReady, FName, bool);
 
 	/**
-	 * @brief Delegate fired when session is found
+	 * Delegate fired when session is found
 	 * @param SearchResult Found session info (the first one)
 	 * @param bWasSuccessful Success flag
 	 */
 	DEFINE_ONLINE_DELEGATE_TWO_PARAM(OnSessionFound, const FOnlineSessionSearchResult&, bool);
 
 	/**
-	 * @brief Delegate fired after session is joined
+	 * Delegate fired after session is joined
 	 * @param URL URL to join
 	 * @param Result Join result type
 	 */

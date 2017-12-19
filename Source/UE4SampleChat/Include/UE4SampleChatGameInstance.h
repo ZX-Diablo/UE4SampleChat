@@ -20,33 +20,36 @@ public:
 
 public:
 	/**
-	 * @brief Start new chat session as host
+	 * Start new chat session as host
+	 * @param Nickname Player nickname
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Network")
 	void HostChat (const FString& Nickname);
 
 	/**
-	 * @brief Join existing chat session
+	 * Join existing chat session
+	 * @param Nickname Player nickname
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Network")
 	void JoinChat (const FString& Nickname);
 
 	/**
-	 * @brief Show main menu
+	 * Show main menu
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Interface")
 	void ShowMainMenu ();
 
 	/**
-	 * @brief Show chat menu
+	 * Show chat menu
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Interface")
 	void ShowChatMenu ();
 
 public:
 	/**
-	 * @brief Get player nickname stored before host/join
+	 * Get player nickname stored before host/join
 	 * (Game instance is used as temporary storage of local player settings)
+	 * @return Player nickname
 	 */
 	const FString& GetStoredNickname () const;
 
