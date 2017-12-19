@@ -49,6 +49,15 @@ public:
 	void ServerClientRequestUpdateChatRoom_Implementation ();
 	bool ServerClientRequestUpdateChatRoom_Validate ();
 
+	/**
+	 * Client sends new message to server
+	 * @param Message Player message
+	 */
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Network")
+	void ServerSendMessage (const FText& Message);
+	void ServerSendMessage_Implementation (const FText& Message);
+	bool ServerSendMessage_Validate (const FText& Message);
+
 public:
 	/**
 	 * Tell all clients to update chat rooms after new client joins
@@ -57,6 +66,16 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void BroadcastUpdateChatRoom (const TArray<FString>& NicknameArray);
 	void BroadcastUpdateChatRoom_Implementation (const TArray<FString>& NicknameArray);
+
+	/**
+	 * Send new message to all clients
+	 * @param Date Message date
+	 * @param Nickname Sender nickname
+	 * @param Message Player message
+	 */
+	UFUNCTION(NetMulticast, Reliable)
+	void BroadcastReceiveNewMessage (const FString& Date, const FString& Nickname, const FText& Message);
+	void BroadcastReceiveNewMessage_Implementation (const FString& Date, const FString& Nickname, const FText& Message);
 
 public:
 	/**
@@ -71,6 +90,15 @@ public:
 	 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Interface|Chat room")
 	void AddChatRoomEntry (const FString& Nickname);
+
+	/**
+	 * Add new message into chat log
+	 * @param Date Message date
+	 * @param Nickname Sender nickname
+	 * @param Message Player message
+	 */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Interface|Chat log")
+	void AddChatLogEntry (const FString& Date, const FString& Nickname, const FText& Message);
 
 protected:
 	virtual void BeginPlay () override;

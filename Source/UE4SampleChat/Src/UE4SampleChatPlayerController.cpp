@@ -56,9 +56,26 @@ bool AUE4SampleChatPlayerController::ServerClientRequestUpdateChatRoom_Validate 
 	return true;
 }
 
+void AUE4SampleChatPlayerController::ServerSendMessage_Implementation (const FText& Message)
+{
+	FString Date = FDateTime::Now().ToString(TEXT("%Y-%m-%d %H:%M:%S"));
+
+	this->BroadcastReceiveNewMessage(Date, this->PlayerState->PlayerName, Message);
+}
+
+bool AUE4SampleChatPlayerController::ServerSendMessage_Validate (const FText& Message)
+{
+	return true;
+}
+
 void AUE4SampleChatPlayerController::BroadcastUpdateChatRoom_Implementation(const TArray<FString>& NicknameArray)
 {
 	this->UpdateChatRoom(NicknameArray);
+}
+
+void AUE4SampleChatPlayerController::BroadcastReceiveNewMessage_Implementation (const FString& Date, const FString& Nickname, const FText& Message)
+{
+	this->AddChatLogEntry(Date, Nickname, Message);
 }
 
 void AUE4SampleChatPlayerController::UpdateChatRoom (const TArray<FString>& NicknameArray)
