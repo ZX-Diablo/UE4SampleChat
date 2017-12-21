@@ -30,6 +30,16 @@ public:
 	void ClientUpdateChatRoom (const TArray<FString>& NicknameArray);
 	void ClientUpdateChatRoom_Implementation (const TArray<FString>& NicknameArray);
 
+	/**
+	 * Receive and display new message on client
+	 * @param Date Message date
+	 * @param Nickname Sender nickname
+	 * @param Message Player message
+	 */
+	UFUNCTION(Client, Reliable)
+	void ClientReceiveNewMessage (const FString& Date, const FString& Nickname, const FText& Message);
+	void ClientReceiveNewMessage_Implementation (const FString& Date, const FString& Nickname, const FText& Message);
+
 public:
 	/**
 	 * Set player nickname
@@ -42,7 +52,7 @@ public:
 
 	/**
 	 * Called after chat level load, client requests update chat room from server
-	 * (can't rely on broadcast due to asynchrony)
+	 * (can't rely on post login due to asynchrony)
 	 */
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Network")
 	void ServerClientRequestUpdateChatRoom ();
@@ -57,25 +67,6 @@ public:
 	void ServerSendMessage (const FText& Message);
 	void ServerSendMessage_Implementation (const FText& Message);
 	bool ServerSendMessage_Validate (const FText& Message);
-
-public:
-	/**
-	 * Tell all clients to update chat rooms after new client joins
-	 * @param NicknameArray List of users in room
-	 */
-	UFUNCTION(NetMulticast, Reliable)
-	void BroadcastUpdateChatRoom (const TArray<FString>& NicknameArray);
-	void BroadcastUpdateChatRoom_Implementation (const TArray<FString>& NicknameArray);
-
-	/**
-	 * Send new message to all clients
-	 * @param Date Message date
-	 * @param Nickname Sender nickname
-	 * @param Message Player message
-	 */
-	UFUNCTION(NetMulticast, Reliable)
-	void BroadcastReceiveNewMessage (const FString& Date, const FString& Nickname, const FText& Message);
-	void BroadcastReceiveNewMessage_Implementation (const FString& Date, const FString& Nickname, const FText& Message);
 
 public:
 	/**
@@ -104,7 +95,5 @@ protected:
 	virtual void BeginPlay () override;
 
 private:
-	void UpdateChatRoom (const TArray<FString>& NicknameArray);
-
 	TArray<FString> GetNicknameArray () const;
 };

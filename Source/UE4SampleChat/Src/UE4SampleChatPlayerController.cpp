@@ -27,7 +27,16 @@ void AUE4SampleChatPlayerController::ClientChatJoined_Implementation ()
 
 void AUE4SampleChatPlayerController::ClientUpdateChatRoom_Implementation (const TArray<FString>& NicknameArray)
 {
-	this->UpdateChatRoom(NicknameArray);
+	this->ClearChatRoom();
+	for (const auto& Nickname : NicknameArray)
+	{
+		this->AddChatRoomEntry(Nickname);
+	}
+}
+
+void AUE4SampleChatPlayerController::ClientReceiveNewMessage_Implementation (const FString & Date, const FString & Nickname, const FText & Message)
+{
+	this->AddChatLogEntry(Date, Nickname, Message);
 }
 
 void AUE4SampleChatPlayerController::ServerSetPlayerNickname_Implementation (const FString& Nickname)
@@ -36,7 +45,15 @@ void AUE4SampleChatPlayerController::ServerSetPlayerNickname_Implementation (con
 
 	TArray<FString> NicknameArray = this->GetNicknameArray();
 
-	this->BroadcastUpdateChatRoom(NicknameArray);
+	for (auto It = this->GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		auto PlayerController = Cast<AUE4SampleChatPlayerController>(*It);
+
+		if (PlayerController)
+		{
+			PlayerController->ClientUpdateChatRoom(NicknameArray);
+		}
+	}
 }
 
 bool AUE4SampleChatPlayerController::ServerSetPlayerNickname_Validate (const FString& Nickname)
@@ -60,31 +77,20 @@ void AUE4SampleChatPlayerController::ServerSendMessage_Implementation (const FTe
 {
 	FString Date = FDateTime::Now().ToString(TEXT("%Y-%m-%d %H:%M:%S"));
 
-	this->BroadcastReceiveNewMessage(Date, this->PlayerState->PlayerName, Message);
+	for (auto It = this->GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		auto PlayerController = Cast<AUE4SampleChatPlayerController>(*It);
+
+		if (PlayerController)
+		{
+			PlayerController->ClientReceiveNewMessage(Date, this->PlayerState->PlayerName, Message);
+		}
+	}
 }
 
 bool AUE4SampleChatPlayerController::ServerSendMessage_Validate (const FText& Message)
 {
 	return true;
-}
-
-void AUE4SampleChatPlayerController::BroadcastUpdateChatRoom_Implementation(const TArray<FString>& NicknameArray)
-{
-	this->UpdateChatRoom(NicknameArray);
-}
-
-void AUE4SampleChatPlayerController::BroadcastReceiveNewMessage_Implementation (const FString& Date, const FString& Nickname, const FText& Message)
-{
-	this->AddChatLogEntry(Date, Nickname, Message);
-}
-
-void AUE4SampleChatPlayerController::UpdateChatRoom (const TArray<FString>& NicknameArray)
-{
-	this->ClearChatRoom();
-	for (const auto& Nickname : NicknameArray)
-	{
-		this->AddChatRoomEntry(Nickname);
-	}
 }
 
 TArray<FString> AUE4SampleChatPlayerController::GetNicknameArray () const
