@@ -2,7 +2,6 @@
 
 #include "Include/UE4SampleChatGameInstance.h"
 
-#include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "UserWidget.h"
 
@@ -62,7 +61,7 @@ void UUE4SampleChatGameInstance::DisconnectChat ()
 	if (SessionManager.IsValid())
 	{
 		this->OnDestroySessionCompleteDelegateHandle = SessionManager->AddOnDestroySessionCompleteDelegate_Handle(this->OnDestroySessionCompleteDelegate);
-		SessionManager->DestroySession(SessionName);
+		SessionManager->DestroySession(this->SessionName);
 	}
 }
 

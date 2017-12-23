@@ -34,7 +34,7 @@ void AUE4SampleChatPlayerController::ClientUpdateChatRoom_Implementation (const 
 	}
 }
 
-void AUE4SampleChatPlayerController::ClientReceiveNewMessage_Implementation (const FString & Date, const FString & Nickname, const FText & Message)
+void AUE4SampleChatPlayerController::ClientReceiveNewMessage_Implementation (const FString& Date, const FString& Nickname, const FText& Message)
 {
 	this->AddChatLogEntry(Date, Nickname, Message);
 }
