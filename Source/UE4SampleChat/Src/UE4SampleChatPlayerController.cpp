@@ -42,7 +42,16 @@ void AUE4SampleChatPlayerController::ClientReceiveNewMessage_Implementation (con
 void AUE4SampleChatPlayerController::ServerSetPlayerNickname_Implementation (const FString& Nickname)
 {
 	this->PlayerState->PlayerName = Nickname;
+	this->ServerUpdateChatRoom();
+}
 
+bool AUE4SampleChatPlayerController::ServerSetPlayerNickname_Validate (const FString& Nickname)
+{
+	return true;
+}
+
+void AUE4SampleChatPlayerController::ServerUpdateChatRoom_Implementation ()
+{
 	TArray<FString> NicknameArray = this->GetNicknameArray();
 
 	for (auto It = this->GetWorld()->GetPlayerControllerIterator(); It; ++It)
@@ -56,7 +65,7 @@ void AUE4SampleChatPlayerController::ServerSetPlayerNickname_Implementation (con
 	}
 }
 
-bool AUE4SampleChatPlayerController::ServerSetPlayerNickname_Validate (const FString& Nickname)
+bool AUE4SampleChatPlayerController::ServerUpdateChatRoom_Validate ()
 {
 	return true;
 }
@@ -99,7 +108,11 @@ TArray<FString> AUE4SampleChatPlayerController::GetNicknameArray () const
 
 	for (auto PlayerState : this->GetWorld()->GetGameState()->PlayerArray)
 	{
-		NicknameArray.Add(PlayerState->PlayerName);
+		// Check for disconnected players
+		if (!PlayerState->GetOwner()->IsActorBeingDestroyed())
+		{
+			NicknameArray.Add(PlayerState->PlayerName);
+		}
 	}
 
 	return NicknameArray;

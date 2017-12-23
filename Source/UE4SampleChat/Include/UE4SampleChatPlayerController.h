@@ -51,6 +51,14 @@ public:
 	bool ServerSetPlayerNickname_Validate (const FString& Nickname);
 
 	/**
+	 * Called after client enters (post login) or leaves (logout) chat room, updates chat room on all clients
+	 */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerUpdateChatRoom ();
+	void ServerUpdateChatRoom_Implementation ();
+	bool ServerUpdateChatRoom_Validate ();
+
+	/**
 	 * Called after chat level load, client requests update chat room from server
 	 * (can't rely on post login due to asynchrony)
 	 */

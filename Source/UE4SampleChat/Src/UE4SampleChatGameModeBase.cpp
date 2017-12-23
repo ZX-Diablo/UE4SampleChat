@@ -15,3 +15,15 @@ void AUE4SampleChatGameModeBase::PostLogin (APlayerController* NewPlayer)
 		PlayerController->ClientChatJoined();
 	}
 }
+
+void AUE4SampleChatGameModeBase::Logout (AController* Exiting)
+{
+	Super::Logout(Exiting);
+
+	auto PlayerController = Cast<AUE4SampleChatPlayerController>(Exiting);
+
+	if (PlayerController)
+	{
+		PlayerController->ServerUpdateChatRoom();
+	}
+}

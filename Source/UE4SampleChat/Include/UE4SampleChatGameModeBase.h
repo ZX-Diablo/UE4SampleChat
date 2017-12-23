@@ -16,4 +16,5 @@ class UE4SAMPLECHAT_API AUE4SampleChatGameModeBase : public AGameModeBase
 
 public:
 	virtual void PostLogin (APlayerController* NewPlayer) override;
+	virtual void Logout (AController* Exiting) override;
 };
