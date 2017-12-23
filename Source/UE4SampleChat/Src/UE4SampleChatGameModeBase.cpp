@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright ZX.Diablo 2017
 
 #include "Include/UE4SampleChatGameModeBase.h"
 
