@@ -12,11 +12,13 @@ UUE4SampleChatGameInstance::UUE4SampleChatGameInstance ()
 {
 	this->MaxClients = 32;
 	this->SessionName = TEXT("Game");
+	this->MainLevel = TEXT("/Game/Levels/MainLevel");
 	this->ChatLevel = TEXT("/Game/Levels/ChatLevel");
 
 	this->OnSessionReadyDelegate = AUE4SampleChatGameSession::FOnSessionReadyDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionReady);
 	this->OnSessionFoundDelegate = AUE4SampleChatGameSession::FOnSessionFoundDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionFound);
 	this->OnSessionJoinedDelegate = AUE4SampleChatGameSession::FOnSessionJoinedDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnSessionJoined);
+	this->OnDestroySessionCompleteDelegate = FOnDestroySessionCompleteDelegate::CreateUObject(this, &UUE4SampleChatGameInstance::OnDestroySessionComplete);
 }
 
 void UUE4SampleChatGameInstance::HostChat (const FString& Nickname)
@@ -50,6 +52,17 @@ void UUE4SampleChatGameInstance::JoinChat (const FString& Nickname)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Failed to find session"));
 		}
+	}
+}
+
+void UUE4SampleChatGameInstance::DisconnectChat ()
+{
+	auto SessionManager = Online::GetSessionInterface();
+
+	if (SessionManager.IsValid())
+	{
+		this->OnDestroySessionCompleteDelegateHandle = SessionManager->AddOnDestroySessionCompleteDelegate_Handle(this->OnDestroySessionCompleteDelegate);
+		SessionManager->DestroySession(SessionName);
 	}
 }
 
@@ -124,6 +137,26 @@ void UUE4SampleChatGameInstance::OnSessionJoined (const FString& URL, EOnJoinSes
 		if (PlayerController && !URL.IsEmpty())
 		{
 			PlayerController->ClientTravel(URL, ETravelType::TRAVEL_Absolute);
+		}
+	}
+}
+
+void UUE4SampleChatGameInstance::OnDestroySessionComplete (FName SessionName, bool bWasSuccessful)
+{
+	auto SessionManager = Online::GetSessionInterface();
+
+	if (SessionManager.IsValid())
+	{
+		SessionManager->ClearOnDestroySessionCompleteDelegate_Handle(this->OnDestroySessionCompleteDelegateHandle);
+	}
+
+	if (bWasSuccessful)
+	{
+		auto PlayerController = this->GetFirstLocalPlayerController();
+
+		if (PlayerController)
+		{
+			PlayerController->ClientTravel(this->MainLevel, ETravelType::TRAVEL_Absolute);
 		}
 	}
 }

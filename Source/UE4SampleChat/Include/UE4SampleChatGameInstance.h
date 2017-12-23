@@ -34,6 +34,12 @@ public:
 	void JoinChat (const FString& Nickname);
 
 	/**
+	 * Disconnect current chat session
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Network")
+	void DisconnectChat ();
+
+	/**
 	 * Show main menu
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Interface")
@@ -74,6 +80,10 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Network")
 	FName SessionName;
 
+	/** Main level name constant */
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Network")
+	FString MainLevel;
+
 	/** Chat level name constant */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Network")
 	FString ChatLevel;
@@ -82,6 +92,7 @@ private:
 	void OnSessionReady (FName SessionName, bool bWasSuccessful);
 	void OnSessionFound (const FOnlineSessionSearchResult& SearchResult, bool bWasSuccessful);
 	void OnSessionJoined (const FString& URL, EOnJoinSessionCompleteResult::Type Result);
+	void OnDestroySessionComplete (FName SessionName, bool bWasSuccessful);
 
 	void ShowMenuHelper (TSubclassOf<UUserWidget> Menu);
 	void CloseCurrentMenu ();
@@ -92,10 +103,12 @@ private:
 	AUE4SampleChatGameSession::FOnSessionReadyDelegate OnSessionReadyDelegate;
 	AUE4SampleChatGameSession::FOnSessionFoundDelegate OnSessionFoundDelegate;
 	AUE4SampleChatGameSession::FOnSessionJoinedDelegate OnSessionJoinedDelegate;
+	FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
 
 	FDelegateHandle OnSessionReadyDelegateHandle;
 	FDelegateHandle OnSessionFoundDelegateHandle;
 	FDelegateHandle OnSessionJoinedDelegateHandle;
+	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
 
 private:
 	FString Nickname;
